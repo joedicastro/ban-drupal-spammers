@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map map_file="maps/world.swf" url="#movie1" zoom="100%" zoom_x="0%" zoom_y="0%">
+   <areas>
+      <area mc_name="AQ" title="Antarctica" value="1"/>
+      <area mc_name="AR" title="Argentina" value="15"/>
+      <area mc_name="AU" title="Australia" value="3"/>
+      <area mc_name="AT" title="Austria" value="5"/>
+      <area mc_name="BS" title="Bahamas" value="2"/>
+      <area mc_name="BD" title="Bangladesh" value="1"/>
+      <area mc_name="BY" title="Belarus" value="2"/>
+      <area mc_name="BE" title="Belgium" value="18"/>
+      <area mc_name="BO" title="Bolivia" value="1"/>
+      <area mc_name="BA" title="Bosnia and Herzegovina" value="1"/>
+      <area mc_name="BR" title="Brazil" value="83"/>
+      <area mc_name="BG" title="Bulgaria" value="4"/>
+      <area mc_name="CA" title="Canada" value="30"/>
+      <area mc_name="CL" title="Chile" value="21"/>
+      <area mc_name="CN" title="China" value="67"/>
+      <area mc_name="CO" title="Colombia" value="15"/>
+      <area mc_name="CD" title="Congo, The Democratic Republic of the" value="1"/>
+      <area mc_name="CR" title="Costa Rica" value="2"/>
+      <area mc_name="HR" title="Croatia" value="3"/>
+      <area mc_name="CZ" title="Czech Republic" value="14"/>
+      <area mc_name="DK" title="Denmark" value="3"/>
+      <area mc_name="EC" title="Ecuador" value="6"/>
+      <area mc_name="EG" title="Egypt" value="1"/>
+      <area mc_name="EE" title="Estonia" value="1"/>
+      <area mc_name="FI" title="Finland" value="5"/>
+      <area mc_name="FR" title="France" value="19"/>
+      <area mc_name="GE" title="Georgia" value="1"/>
+      <area mc_name="DE" title="Germany" value="22"/>
+      <area mc_name="GH" title="Ghana" value="1"/>
+      <area mc_name="GT" title="Guatemala" value="1"/>
+      <area mc_name="HN" title="Honduras" value="1"/>
+      <area mc_name="HK" title="Hong Kong" value="16"/>
+      <area mc_name="HU" title="Hungary" value="15"/>
+      <area mc_name="IN" title="India" value="33"/>
+      <area mc_name="ID" title="Indonesia" value="4"/>
+      <area mc_name="IR" title="Iran, Islamic Republic of" value="4"/>
+      <area mc_name="IL" title="Israel" value="8"/>
+      <area mc_name="IT" title="Italy" value="12"/>
+      <area mc_name="JM" title="Jamaica" value="1"/>
+      <area mc_name="JP" title="Japan" value="78"/>
+      <area mc_name="KZ" title="Kazakhstan" value="4"/>
+      <area mc_name="KE" title="Kenya" value="3"/>
+      <area mc_name="KR" title="Korea, Republic of" value="66"/>
+      <area mc_name="KW" title="Kuwait" value="1"/>
+      <area mc_name="LV" title="Latvia" value="13"/>
+      <area mc_name="LT" title="Lithuania" value="3"/>
+      <area mc_name="LU" title="Luxembourg" value="2"/>
+      <area mc_name="MY" title="Malaysia" value="4"/>
+      <area mc_name="MX" title="Mexico" value="15"/>
+      <area mc_name="MD" title="Moldova, Republic of" value="1"/>
+      <area mc_name="MM" title="Myanmar" value="1"/>
+      <area mc_name="NP" title="Nepal" value="1"/>
+      <area mc_name="NL" title="Netherlands" value="32"/>
+      <area mc_name="NZ" title="New Zealand" value="1"/>
+      <area mc_name="NI" title="Nicaragua" value="1"/>
+      <area mc_name="NG" title="Nigeria" value="1"/>
+      <area mc_name="NO" title="Norway" value="5"/>
+      <area mc_name="PK" title="Pakistan" value="5"/>
+      <area mc_name="PA" title="Panama" value="1"/>
+      <area mc_name="PH" title="Philippines" value="6"/>
+      <area mc_name="PL" title="Poland" value="36"/>
+      <area mc_name="PT" title="Portugal" value="4"/>
+      <area mc_name="PR" title="Puerto Rico" value="4"/>
+      <area mc_name="QA" title="Qatar" value="1"/>
+      <area mc_name="RO" title="Romania" value="12"/>
+      <area mc_name="RU" title="Russian Federation" value="62"/>
+      <area mc_name="A2" title="Satellite Provider" value="1"/>
+      <area mc_name="SA" title="Saudi Arabia" value="13"/>
+      <area mc_name="RS" title="Serbia" value="3"/>
+      <area mc_name="SG" title="Singapore" value="3"/>
+      <area mc_name="SK" title="Slovakia" value="6"/>
+      <area mc_name="SI" title="Slovenia" value="3"/>
+      <area mc_name="ZA" title="South Africa" value="2"/>
+      <area mc_name="ES" title="Spain" value="12"/>
+      <area mc_name="LK" title="Sri Lanka" value="1"/>
+      <area mc_name="SE" title="Sweden" value="11"/>
+      <area mc_name="CH" title="Switzerland" value="1"/>
+      <area mc_name="TW" title="Taiwan" value="14"/>
+      <area mc_name="TH" title="Thailand" value="5"/>
+      <area mc_name="TT" title="Trinidad and Tobago" value="1"/>
+      <area mc_name="TR" title="Turkey" value="4"/>
+      <area mc_name="UA" title="Ukraine" value="56"/>
+      <area mc_name="AE" title="United Arab Emirates" value="7"/>
+      <area mc_name="GB" title="United Kingdom" value="26"/>
+      <area mc_name="US" title="United States" value="594"/>
+      <area mc_name="VE" title="Venezuela" value="33"/>
+      <area mc_name="VN" title="Vietnam" value="2"/>
+      <area mc_name="YE" title="Yemen" value="6"/>
+   </areas>
+   <movies>
+      <movie file="da.png" height="32" width="150" x="5" y="364"/>
+   </movies>
+   <labels>
+      <label align="center" color="#005000" text_size="18" width="100%" x="0" y="14">
+         <text>
+<![CDATA[<b>Ataques de spam por pais</b>]]>         </text>
+      </label>
+      <label align="right" text_size="8" width="100%" x="0" y="388">
+         <text>
+<![CDATA[Actualizado a 20:20 10 December 2009]]>         </text>
+      </label>
+   </labels>
+</map>
