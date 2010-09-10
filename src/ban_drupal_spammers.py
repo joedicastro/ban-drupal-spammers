@@ -8,9 +8,6 @@
 #===============================================================================
 # This Script uses the Mollom reports in Drupal for ban spammers' ips and
 # reduce the bandwith usage in the website.
-#
-# Este script emplea los informes de Mollom en Drupal para bloquear las ips de
-# los spammers y asi reducir el trafico (ancho de banda usado) en el sitio.
 #===============================================================================
 
 #===============================================================================
@@ -28,22 +25,6 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#
-#    Este programa es software libre: usted puede redistribuirlo y/o modificarlo
-#    bajo los términos de la Licencia Publica General GNU publicada
-#    por la Fundación para el Software Libre, ya sea la versión 3
-#    de la Licencia, o (a su elección) cualquier versión posterior.
-#
-#    Este programa se distribuye con la esperanza de que sea útil, pero
-#    SIN GARANTIA ALGUNA; ni siquiera la garantía implícita
-#    MERCANTIL o de APTITUD PARA UN PROPOSITO DETERMINADO.
-#    Consulte los detalles de la Licencia Publica General GNU para obtener
-#    una información mas detallada.
-#
-#    Deberia haber recibido una copia de la Licencia Publica General GNU
-#    junto a este programa.
-#    En caso contrario, consulte <http://www.gnu.org/licenses/>.
 #
 #===============================================================================
 
@@ -65,14 +46,12 @@ try:
     import smtplib
 except ImportError:
     # Checks the installation of the necessary python modules
-    # Comprueba si todos los módulos necesarios están instalados
     print((os.linesep * 2).join(["An error found importing one module:",
     str(sys.exc_info()[1]), "You need to install it", "Stopping..."]))
     sys.exit(-2)
 
 def connect_db(host, user, pass_, database, port):
-    """Connect to MySQL database.
-    Conecta con la base de datos MySQL"""
+    """Connect to MySQL database."""
     try:
         data_base = _mysql.connect(host, user, pass_, database, int(port),
                                    client_flag=65536)
@@ -84,8 +63,7 @@ def connect_db(host, user, pass_, database, port):
     return data_base
 
 def alter_table(database, db_table):
-    """Create the aux field in the table if no exists, in other case, do nothing
-    Crea el campo en la tabla si no existe, de otro modo, no hace nada"""
+    """Create the aux field in the table if no exists, else do nothing."""
     output = ''
     database_string = """
                         ALTER TABLE {0}
@@ -100,62 +78,48 @@ def alter_table(database, db_table):
     return output
 
 def select_qry(database, sql):
-    """Runs a SQL SELECT query and returns a dictionary as output
-    Ejecuta una consulta SQL SELECT y devuelve el resultado como diccionario"""
+    """Runs a SQL SELECT query and returns a dictionary as output."""
     database.query(sql)
     result = database.store_result()
     qry_result = result.fetch_row(0, 1) # El "1" devuelve un dict y no una tupla
     return qry_result
 
 def ins_qstr(q_mask, q_timestamp):
-    """Create a SQL INSERT query string for the given ip
-    Crea una cadena de consulta SQL INSERT para la ip dada"""
+    """Create a SQL INSERT query string for the given ip."""
     iqstr = """
             INSERT INTO `access`
             (mask, type, status, timestamp)
-            VALUES ('{0}', 'host', '0', {1});\n
-            """.format(q_mask, q_timestamp)
+            VALUES ('{0}', 'host', '0', {1});{2}
+            """.format(q_mask, q_timestamp, os.linesep)
     return iqstr
 
 def del_qstr(q_timestamp):
-    """Create a DELETE query string for the given timestamp
-    Crean una cadena de consulta SQL DELETE para el timestamp dado"""
+    """Create a DELETE query string for the given timestamp."""
     dqstr = """
             DELETE FROM access
-            WHERE timestamp='{0}';\n
-            """.format(q_timestamp)
+            WHERE timestamp='{0}';{1}
+            """.format(q_timestamp, os.linesep)
     return dqstr
 
-def log_header(h_host, h_user, h_db):
-    """Creates the header for the log
-    Crea la cabecera del informe"""
-    url = 'http://bitbucket.org/joedicastro/ban_drupal_spammers'
-    header = '{0}\n{1:20} ver. {2}\n{3}\n\n'.format('=' * 70, __file__,
-                                                    __version__, url)
-    header += 'Connected to {0} in {1} as {2}'.format(h_db, h_host, h_user)
-    return header
+def log_block(title, content, block=True):
+    """Create a block lines for the log."""
+    decor = '=' if block else '_'
+    ending = '' if block else os.linesep
+    begin = ' '.join([title.upper(), (80 - (len(title) + 1)) * decor]) + ending
+    end = decor * 80 if block else ''
+    if isinstance(content, str):
+        content = [content]
+    return os.linesep.join([begin, os.linesep.join(content), end, os.linesep])
 
-def log_time(t_string):
-    """Creates de date/time lines for the log
-    Crea las líneas de información de fecha/hora para el informe"""
-    cur_time = '\n{0}\n{1:20}{2:>50}\n{0}\n\n'.format('=' * 70, t_string,
-                                                    time.strftime('%A %x, %X'))
-    return cur_time
-
-def log_ips(l_msg, l_ips, geo):
-    """Create the log lines about the ips situation
-    Crea las lineas del informe para las distintas situaciones de las ips"""
-    l_str = ''
-    if l_ips:
-        l_str += "{0} {1}\n\n".format(l_msg, len(l_ips))
-        for lip in sorted([(geo.country_name_by_addr(i), i) for i in l_ips]):
-            l_str += '{0:16} {1}\n'.format(lip[1], lip[0])
-        l_str += '\n'
-    return l_str
+def ip_country(l_ips, geo):
+    """Create the log lines about the ips situation."""
+    total = "{0} IPs".format(len(l_ips))
+    ips = os.linesep.join(['{0:16} {1}'.format(i[1], i[0]) for i in sorted(
+                          [(geo.country_name_by_addr(l), l) for l in l_ips])])
+    return os.linesep.join([total, os.linesep, ips])
 
 def renew_geoip(cr_dt, gip_path):
-    """Check if the geoip data file is too old
-    Comprueba si el fichero de geolocalizacion es demasiado antiguo"""
+    """Check if the geoip data file is too old."""
     out_str = ''
     geoip_file_date = os.path.getmtime(gip_path)
     if int(cr_dt) - geoip_file_date > 2592000: # 2592000s = 30 days
@@ -166,22 +130,20 @@ http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz\
     return out_str
 
 def send_mail(content):
-    """Send the mail with the log to the user's local mailbox
-    Envia el correo con el informe al buzón del usuario local"""
+    """Send the mail with the log to the user's local mailbox."""
     # Set the local mail address for the script' user
     email = '{0}@{1}'.format(os.getenv('LOGNAME'), socket.gethostname())
     subject = 'Remove IP Spammers - {0}'.format(time.strftime('%A %x, %X'))
-    msg = ("From: {0}\nTo: {0}\nSubject: {1}\n{2}".
-           format(email, subject, content))
+    msg = ("From: {0}{3}To: {0}{3}Subject: {1}{3}{2}".
+           format(email, subject, content, os.linesep))
     server = smtplib.SMTP('localhost')
     server.sendmail(email, email, msg)
     server.quit()
     return
 
 
-
 def main():
-    """main section - Seccion principal"""
+    """main section"""
 
 #===============================================================================
 # SCRIPT PARAMATERS
@@ -209,15 +171,29 @@ def main():
 
     # comenzamos creando las primeras lineas del informe y comprobamos la
     # antigüedad del fichero de datos de localizacion geografica por ip
-    log = log_header(host, user, database)
-    log += log_time('Start Time: ')
-    log += renew_geoip(time.time(), geoip_path)
+
+    # log the header
+    url = 'http://bitbucket.org/joedicastro/ban_drupal_spammers'
+    script = '{0:50}  ver. {1}'.format(__file__, __version__)
+    connected = 'Connected to {0} in {1} as {2}'.format(database, host, user)
+    log = log_block('Script', (script, url, ' ', connected))
+
+    # log the start time
+    log += log_block('Start Time', '{0:>80}'.format(time.strftime('%A %x, %X')))
+
+    # log the warning about old geolocation data file
+    renew_geoip_file = renew_geoip(time.time(), geoip_path)
+    if renew_geoip_file:
+        log += log_block('The geolocation data is old', renew_geoip_file, 0)
 
     # conectamos a la base de datos e inicializamos los datos de geolocalización
     bdd = connect_db(host, user, password, database, '3306')
     gip = GeoIP.open(geoip_path, GeoIP.GEOIP_CHARSET_UTF8)
+
     # añadimos el campo timestamp si no existe
-    log += alter_table(bdd, 'access')
+    new_table_field = alter_table(bdd, 'access')
+    if new_table_field:
+        log += log_block('New aux table field created', new_table_field, False)
 
     # Consultamos la base de datos y obtenemos el resultado. Recogemos las ips
     # de la tabla access y las ips de los spammers reportados por Mollom en la
@@ -309,18 +285,28 @@ def main():
                     newest = int(ips_date)
 
         newest = time.strftime('%A %x', time.localtime(newest))
-        log += log_ips("Spammers' Ips deleted:", del_ips, gip)
-        log += "Newest date of Ips deleted: {0}\n".format(newest)
+
+        # log spammers' ips deleted from the table
+        if del_ips:
+            log += log_block("Spammers' Ips deleted", ip_country(del_ips, gip),
+                             0)
+
+        log += log_block("Newest date of deleted IPs",
+                         "Date: {0}".format(newest), False)
 
     # lanzamos la consulta a la base de datos
     if query_str:
         bdd.query(query_str)
 
-    # Recogemos los ultimos datos para el informe
-    log += log_ips("Spammers' Ips inserted:", ins_ips, gip)
-    log += '\nTotal Banned Ips through Mollom: {0}\n'.format(banned_ips)
-    log += '\nBanned through Drupal: {0}\n'.format(drupal_banned_ips)
-    log += log_time('End Time: ')
+    # log spammers' ips inserted into the table
+    if ins_ips:
+        log += log_block("Spammers' IPs inserted", ip_country(ins_ips, gip), 0)
+
+    # log total banned ips by origin
+    log += log_block('Banned IPs', ['Mollom: %d IPs' % banned_ips,
+                                    'Drupal: %d IPs' % drupal_banned_ips], 0)
+    # log the end time
+    log += log_block('End Time', '{0:>80}'.format(time.strftime('%A %x, %X')))
 
     # enviamos el informe por mail
     send_mail(log)
