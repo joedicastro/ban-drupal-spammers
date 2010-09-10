@@ -31,19 +31,18 @@
 __author__ = "joe di castro - joe@joedicastro.com"
 __license__ = "GNU General Public License version 3"
 __date__ = "15/05/2010"
-__version__ = "0.2"
+__version__ = "0.21"
 
 try:
     import sys
     import os
     import time
-    import socket
     import base64
     import collections
     import _mysql
     import _mysql_exceptions
     import GeoIP
-    import smtplib
+    import logger
 except ImportError:
     # Checks the installation of the necessary python modules
     print((os.linesep * 2).join(["An error found importing one module:",
@@ -101,22 +100,12 @@ def del_qstr(q_timestamp):
             """.format(q_timestamp, os.linesep)
     return dqstr
 
-def log_block(title, content, block=True):
-    """Create a block lines for the log."""
-    decor = '=' if block else '_'
-    ending = '' if block else os.linesep
-    begin = ' '.join([title.upper(), (80 - (len(title) + 1)) * decor]) + ending
-    end = decor * 80 if block else ''
-    if isinstance(content, str):
-        content = [content]
-    return os.linesep.join([begin, os.linesep.join(content), end, os.linesep])
-
 def ip_country(l_ips, geo):
-    """Create the log lines about the ips situation."""
+    """Create the log lines about the ips and their countries."""
     total = "{0} IPs".format(len(l_ips))
     ips = os.linesep.join(['{0:16} {1}'.format(i[1], i[0]) for i in sorted(
                           [(geo.country_name_by_addr(l), l) for l in l_ips])])
-    return os.linesep.join([total, os.linesep, ips])
+    return os.linesep.join([total, '', ips])
 
 def renew_geoip(cr_dt, gip_path):
     """Check if the geoip data file is too old."""
@@ -128,18 +117,6 @@ def renew_geoip(cr_dt, gip_path):
 http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz\
 \nor\nhttp://www.maxmind.com/app/ip-location\n\n  * {0}\n\n\n".format(gip_path)
     return out_str
-
-def send_mail(content):
-    """Send the mail with the log to the user's local mailbox."""
-    # Set the local mail address for the script' user
-    email = '{0}@{1}'.format(os.getenv('LOGNAME'), socket.gethostname())
-    subject = 'Remove IP Spammers - {0}'.format(time.strftime('%A %x, %X'))
-    msg = ("From: {0}{3}To: {0}{3}Subject: {1}{3}{2}".
-           format(email, subject, content, os.linesep))
-    server = smtplib.SMTP('localhost')
-    server.sendmail(email, email, msg)
-    server.quit()
-    return
 
 
 def main():
@@ -169,22 +146,20 @@ def main():
 # END PARAMETERS
 #===============================================================================
 
-    # comenzamos creando las primeras lineas del informe y comprobamos la
-    # antigüedad del fichero de datos de localizacion geografica por ip
-
+    # Initialize the log
+    log = logger.Logger()
     # log the header
     url = 'http://bitbucket.org/joedicastro/ban_drupal_spammers'
-    script = '{0:50}  ver. {1}'.format(__file__, __version__)
     connected = 'Connected to {0} in {1} as {2}'.format(database, host, user)
-    log = log_block('Script', (script, url, ' ', connected))
+    log.header(url, connected)
 
     # log the start time
-    log += log_block('Start Time', '{0:>80}'.format(time.strftime('%A %x, %X')))
+    log.time('Start Time')
 
     # log the warning about old geolocation data file
     renew_geoip_file = renew_geoip(time.time(), geoip_path)
     if renew_geoip_file:
-        log += log_block('The geolocation data is old', renew_geoip_file, 0)
+        log.list('The geolocation data is old', renew_geoip_file)
 
     # conectamos a la base de datos e inicializamos los datos de geolocalización
     bdd = connect_db(host, user, password, database, '3306')
@@ -193,7 +168,7 @@ def main():
     # añadimos el campo timestamp si no existe
     new_table_field = alter_table(bdd, 'access')
     if new_table_field:
-        log += log_block('New aux table field created', new_table_field, False)
+        log.list('New aux table field created', new_table_field)
 
     # Consultamos la base de datos y obtenemos el resultado. Recogemos las ips
     # de la tabla access y las ips de los spammers reportados por Mollom en la
@@ -287,12 +262,8 @@ def main():
         newest = time.strftime('%A %x', time.localtime(newest))
 
         # log spammers' ips deleted from the table
-        if del_ips:
-            log += log_block("Spammers' Ips deleted", ip_country(del_ips, gip),
-                             0)
-
-        log += log_block("Newest date of deleted IPs",
-                         "Date: {0}".format(newest), False)
+        log.list("Spammers' Ips deleted", ip_country(del_ips, gip))
+        log.list("Newest date of deleted IPs", "Date: {0}".format(newest))
 
     # lanzamos la consulta a la base de datos
     if query_str:
@@ -300,16 +271,16 @@ def main():
 
     # log spammers' ips inserted into the table
     if ins_ips:
-        log += log_block("Spammers' IPs inserted", ip_country(ins_ips, gip), 0)
+        log.list("Spammers' IPs inserted", ip_country(ins_ips, gip))
 
     # log total banned ips by origin
-    log += log_block('Banned IPs', ['Mollom: %d IPs' % banned_ips,
-                                    'Drupal: %d IPs' % drupal_banned_ips], 0)
+    log.list('Banned IPs', ['Mollom: %d IPs' % banned_ips,
+                            'Drupal: %d IPs' % drupal_banned_ips])
     # log the end time
-    log += log_block('End Time', '{0:>80}'.format(time.strftime('%A %x, %X')))
+    log.time('End Time')
 
     # enviamos el informe por mail
-    send_mail(log)
+    log.send('Remove IP Spammers')
 
 if __name__ == "__main__":
     main()
