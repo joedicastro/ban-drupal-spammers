@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: latin-1 -*-
+# -*- coding: utf8 -*-
 
 """
     ban drupal spammers.py: ban spammers in Drupal with Mollom's aid
@@ -54,7 +54,8 @@ def connect_db(host, user, pass_, database, port):
     try:
         data_base = _mysql.connect(host, user, pass_, database, int(port),
                                    client_flag=65536)
-        # El flag 65536 es para permitir multiples querys en una sola consulta
+        # flag 65536 is to allow multiple statements in a single string, equals
+        # to CLIENT_MULTI_STATEMENTS
     except _mysql_exceptions.OperationalError:
         print  ("Database connection fails, check that you gave the right "
                "credentials to access the database\nQuitting...")
@@ -73,14 +74,14 @@ def alter_table(database, db_table):
         output += 'Aux Field in table {0} created:\n'.format(db_table)
     except _mysql_exceptions.OperationalError:
         print ("Can't create the aux field, seems those exist previously.")
-        # Esta salida no la reportamos en el log, pues será reiterativa.
+        # This output is not reported in the log, it will be repetitive.
     return output
 
 def select_qry(database, sql):
     """Runs a SQL SELECT query and returns a dictionary as output."""
     database.query(sql)
     result = database.store_result()
-    qry_result = result.fetch_row(0, 1) # El "1" devuelve un dict y no una tupla
+    qry_result = result.fetch_row(0, 1) # The "1" give a dict instead a tuple
     return qry_result
 
 def ins_qstr(q_mask, q_timestamp):
@@ -102,10 +103,13 @@ def del_qstr(q_timestamp):
 
 def ip_country(l_ips, geo):
     """Create the log lines about the ips and their countries."""
-    total = "{0} IPs".format(len(l_ips))
-    ips = os.linesep.join(['{0:16} {1}'.format(i[1], i[0]) for i in sorted(
-                          [(geo.country_name_by_addr(l), l) for l in l_ips])])
-    return os.linesep.join([total, '', ips])
+    output = None
+    if l_ips:
+        total = "{0} IPs".format(len(l_ips))
+        ips = os.linesep.join(['{0:16} {1}'.format(i[1], i[0]) for i in sorted(
+                            [(geo.country_name_by_addr(l), l) for l in l_ips])])
+        output = os.linesep.join([total, '', ips])
+    return output
 
 def renew_geoip(cr_dt, gip_path):
     """Check if the geoip data file is too old."""
@@ -157,22 +161,17 @@ def main():
     log.time('Start Time')
 
     # log the warning about old geolocation data file
-    renew_geoip_file = renew_geoip(time.time(), geoip_path)
-    if renew_geoip_file:
-        log.list('The geolocation data is old', renew_geoip_file)
+    log.list('The GeoIp.dat file is old', renew_geoip(time.time(), geoip_path))
 
-    # conectamos a la base de datos e inicializamos los datos de geolocalización
+    # connect to database & initialize the geolocation info
     bdd = connect_db(host, user, password, database, '3306')
     gip = GeoIP.open(geoip_path, GeoIP.GEOIP_CHARSET_UTF8)
 
-    # añadimos el campo timestamp si no existe
-    new_table_field = alter_table(bdd, 'access')
-    if new_table_field:
-        log.list('New aux table field created', new_table_field)
+    # Adds the timestamp field to the 'access' table if no exists
+    log.list('New aux table field created', alter_table(bdd, 'access'))
 
-    # Consultamos la base de datos y obtenemos el resultado. Recogemos las ips
-    # de la tabla access y las ips de los spammers reportados por Mollom en la
-    # tabla watchdog
+    # Query the database and obtain the result. We collect the 'access' table 
+    # ips and ips from spammers reported by Mollom in 'watchdog' table
     access = select_qry(bdd, """SELECT mask, timestamp FROM access""")
 
     mollom = select_qry(bdd, """SELECT hostname as mask, timestamp
@@ -180,16 +179,16 @@ def main():
                                 WHERE `type` LIKE '%mollom%'
                                 AND `message` LIKE '%spam:%'""")
 
-    # De las ips de access, seleccionamos las ips bloqueadas por este script a
-    # partir de Mollom, descartando las que introducimos a traves de la interfaz
-    # de administracion de Drupal
+    # From the 'access' ips, select the ips blocked by this script from Mollom,
+    # discarding those introduced through the Drupal administration interface
     from_access = {}
     for a_row in access:
         if int(a_row['timestamp']):
             from_access[a_row['mask']] = a_row['timestamp']
 
-    # Aqui seleccionamos las ips que mollom nos reporta, si hay varias
-    # ocurrencias de la misma ip elegimos siempre la más reciente.
+
+    # Here we select the ips that Mollom reported, if there are multiple 
+    # occurrences of the same ip, we always choose the most recent
     from_mollom = {}
     for m_row in mollom:
         if m_row['mask'] in from_mollom.keys():
@@ -198,80 +197,75 @@ def main():
         else:
             from_mollom[m_row['mask']] = m_row['timestamp']
 
-    # Ahora de estas ips, seleccionamos las Ips de spammers que no estaban ya
-    # baneadas y generamos las consultas para insertarlas en la tabla. Es
-    # necesario comprobar si las ips reportadas por Mollom no están ya
-    # bloqueadas por como funciona el registro de eventos en Drupal. El modulo
-    # del núcleo opcional Database logging (que debe estar activado para que
-    # funcione este script) va eliminando registros por la cola (en la tabla
-    # watchdog) en cada ejecución de cron en función de un limite máximo
-    # establecido en el menú de administración. Este limite puede ser de 100,
-    # 1000, 10000, 100000, 1000000 registros, según lo establezcamos en el menú
-    # de registro de alertas. Luego dependiendo del limite de registros
-    # establecido en esta tabla, la frecuencia con la que se ejecute la tarea
-    # cron y la frecuencia con que se ejecute este script, es muy probable que
-    # en la consulta anterior nos haya devuelto una serie de ips que aún no han
-    # sido eliminadas del registro, pero que ya hayamos añadido a la tabla de
-    # las ips bloqueadas. De este modo evitamos duplicar ips en la tabla de
-    # ips bloqueadas
+    # Now, from these ips, select the IPs of spammers that were not already 
+    # banned and generate queries to insert into the 'access' table. It's 
+    # necessary to check if some of ips reported through Mollom didn't be 
+    # already banned, because of how the Drupal's event log works. The optional 
+    # core module "Database logging" (which must be enabled to run his script)
+    # is deleting records by the tail (into the 'watchdog' table) on each cron 
+    # run according to a maximum limit set in the admin menu. This limit may be 
+    # 100, 1000, 10000, 100000, 1000000 records, as determined in the "Loggin 
+    # and alerts -> Database logging" menu. Then depending on the record limit
+    # set in the 'watchdog' table, the frequency with which you run the cron job
+    # and how often you run this script, it's  very likely that in the previous 
+    # query we have returned a number of ips that have not yet eliminated from 
+    # the log ('watchdog'), but we have already added to the table of bannedd 
+    # ips ('access'). This will avoid duplicate ips on table 'access'
     ins_ips = [f_ip for f_ip in from_mollom.keys() if f_ip not in from_access]
     query_str = ''.join(ins_qstr(i_ip, from_mollom[i_ip]) for i_ip in ins_ips)
 
-    # numero de ips baneadas a traves de este script
+    # number of banned ips through this script
     banned_ips = len(from_access) + len(ins_ips)
-    # numero de ips baneadas a traves del interface de Drupal
+    # number of banned ips through Drupal administration interface
     drupal_banned_ips = len(access) - len(from_access)
 
-    # A partir de cierto numero de registros en la tabla access, el rendimiento
-    # de la pagina se deteriora y a partir de un numero aun mayor, el
-    # comportamiento de Drupal se acaba volviendo erratico. En el caso del sitio
-    # sobre el que se va a ejecutar este script, se aprecia una perdida de
-    # rendimiento a partir de los 3000 registros y se vuelve erratico sobre los
-    # 5000. Para prevenir este desagradable efecto secundario, y que no sea peor
-    # el remedio que la enfermedad, establezco un umbral de rendimiento en los
-    # 2500 registros, a partir del cual ire eliminando registros de la tabla.
-    # Si el numero de registros es mayor al umbral de rendimiento, procedemos
-    # a calcular las ips a eliminar, seleccionando las más antiguas. El numero
-    # de las ips a borrar sera un minimo del 30% de from_access. Solo
-    # eliminaremos registros introducidos a traves de este script, nunca los
-    # introducimos a traves del interface de Drupal
-
-    trigger = bool(len(access) > threshold) # Umbral de rendimiento
+    # After a certain number of records in the table 'access', the website's 
+    # perfomance deteriorates and from an even larger number, the behavior of 
+    # Drupal just become erratic. In the case of the site on which to run this 
+    # script, we see a clear loss of performance from the 3000 records and 
+    # becomes erratic over 5000. To avoid this unpleasant side effect, and 
+    # that cure don't be worse than the disease, I set a performance threshold 
+    # in 2500 records, from which records were removed from the table. If the 
+    # number of rows is greater than the performance threshold, we proceed to 
+    # calculate the ips to remove, selecting the oldest. The number of ips to 
+    # delete will be at least the 30% of "from_access". Just delete records 
+    # inserted through this script, never the inserted via Drupal admin 
+    # interface
+    trigger = bool(len(access) > threshold) # perfomance threshold
 
     if trigger:
-        # Ahora vamos a  agrupar las ips por fechas. Utilizo el objeto
-        # defaultdict del modulo collections para agrupar las ips en un
-        # diccionario de listas(values) de ips por fecha(keys)
+        # Now we'll group the ips by date. Use the object collections.defauldict
+        # to group the ips in a dictionary of lists (values) of ips by date 
+        # (keys)
         ips_by_time = collections.defaultdict(list)
         for fa_ip in from_access:
             ips_by_time[from_access[fa_ip]].append(fa_ip)
 
-        del_ips, newest = [], 0    # ips a borrar y fecha de la ip mas reciente
+        del_ips, latest = [], 0    # ips to delete and date of the latest ip
 
-        # Seleccionamos las ips mas antiguas hasta tener un numero de ellas
-        # mayor o igual al 30% de las bloqueadas por este script
+        # We selected the oldest ips to have a number of them greater than or 
+        # equal to 30% of blocked by this script
         for ips_date in sorted(ips_by_time.keys()):
             if len(del_ips) < ((len(from_access) * 30) / 100):
-                query_str += del_qstr(ips_date) # borramos por fecha, - querys
+                query_str += del_qstr(ips_date) # delete by date, less queries
                 for d_ip in ips_by_time[ips_date]:
                     del_ips.append(d_ip)
                     banned_ips -= 1
-                if int(ips_date) > newest:
-                    newest = int(ips_date)
+                if int(ips_date) > latest:
+                    latest = int(ips_date)
 
-        newest = time.strftime('%A %x', time.localtime(newest))
+        latest = time.strftime('%A %x', time.localtime(latest))
 
         # log spammers' ips deleted from the table
         log.list("Spammers' Ips deleted", ip_country(del_ips, gip))
-        log.list("Newest date of deleted IPs", "Date: {0}".format(newest))
+        log.list("Newest date of deleted IPs", "Date: {0}".format(latest))
 
-    # lanzamos la consulta a la base de datos
+    # runs the database query
     if query_str:
         bdd.query(query_str)
 
     # log spammers' ips inserted into the table
-    if ins_ips:
-        log.list("Spammers' IPs inserted", ip_country(ins_ips, gip))
+    log.list("Spammers' IPs inserted", ip_country(ins_ips, gip))
 
     # log total banned ips by origin
     log.list('Banned IPs', ['Mollom: %d IPs' % banned_ips,
@@ -279,7 +273,7 @@ def main():
     # log the end time
     log.time('End Time')
 
-    # enviamos el informe por mail
+    # send the log by email
     log.send('Remove IP Spammers')
 
 if __name__ == "__main__":

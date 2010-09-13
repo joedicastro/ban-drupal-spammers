@@ -83,7 +83,8 @@ class Logger():
         ========================================================
         
         """
-        self.__format__(title, content, '=')
+        if content:
+            self.__format__(title, content, '=')
 
     def list(self, title, content):
         """A list of text lines headed by a line full of '_'.
@@ -98,7 +99,17 @@ class Logger():
         content
         
         """
-        self.__format__(title, content, '_')
+        if content:
+            self.__format__(title, content, '_')
+
+    def free(self, content):
+        """Free text unformatted.
+        
+        (str) content -- Text free formated
+        
+        """
+        if isinstance(content, str):
+            self.__log += content + os.linesep * 2
 
     def time(self, title):
         """A self.block() formated line with current time and date.
@@ -181,6 +192,10 @@ def main():
     log.time('Start time')
     log.block('Block', 'This is a sample of Logger.block()'.split(' '))
     log.list('List', 'This is a sample of Logger.list()'.split(' '))
+    log.free('''Tis a sample of free text.
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque sed 
+tortor eget justo vehicula consequat vel eu quam. Suspendisse non lectus eget 
+orci varius adipiscing."''')
     log.time('End time')
     log.send('This is mail test')
     log.write(True)
