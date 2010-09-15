@@ -33,7 +33,7 @@
 __author__ = "joe di castro - joe@joedicastro.com"
 __license__ = "GNU General Public License version 3"
 __date__ = "07/09/2010"
-__version__ = "0.21"
+__version__ = "0.22"
 
 try:
     import sys
@@ -43,34 +43,30 @@ try:
     import time
     from ftplib import FTP
     from xml.dom.minidom import Document
-    import _mysql
-    import _mysql_exceptions
+    import MySQLdb
 except ImportError:
     # Checks the installation of the necessary python modules 
     print((os.linesep * 2).join(["An error found importing one module:",
-    str(sys.exc_info()[1]), "You need to install it", "Stopping..."]))
+    str(sys.exc_info()[1]), "You need to install it", "Exit..."]))
     sys.exit(-2)
 
-
-def connect_db(host, user, pass_, database, port):
+def connect_db(host, user, pass_, db, port=3306):
     """Connect to MySQL database."""
     try:
-        data_base = _mysql.connect(host, user, pass_, database, int(port),
-                                   client_flag=65536)
+        data_base = MySQLdb.connect(host=host, user=user, passwd=pass_, db=db,
+                                    port=port, client_flag=65536)
         # flag 65536 is to allow multiple statements in a single string, equals
         # to CLIENT_MULTI_STATEMENTS
-    except _mysql_exceptions.OperationalError:
-        print  ("Database connection fails, check that you gave the right "
-               "credentials to access the database\nQuitting...")
+    except MySQLdb.OperationalError:
+        print("Database connection fails, check that you gave the right "
+              "credentials to access the database{0}Exit...".format(os.linesep))
         sys.exit(-2)
     return data_base
 
-def select_query(database, sql):
-    """Runs a SQL SELECT query and returns a dictionary as output."""
-    database.query(sql)
-    result = database.store_result()
-    resultado = result.fetch_row(0, 1) # The "1" give a dict instead a tuple
-    return resultado
+def select(curs, sql):
+    """Runs a SQL SELECT query and returns a tuple as output."""
+    curs.execute(sql)
+    return curs.fetchall()
 
 def create_xml(spam_by_country, xml_file):
     """Create the ammap xml file with the spam_by_country data."""
@@ -177,12 +173,13 @@ def main():
 # END PARAMETERS
 #===============================================================================
 
-    # connect to database
-    da_base = connect_db(host, user, password, database, '3306')
+    # connect to database and create the cursor
+    da_base = connect_db(host, user, password, database, 3306)
+    cursor = da_base.cursor(MySQLdb.cursors.DictCursor)
     # get the data from db
-    ips = select_query(da_base, """SELECT aid, mask 
-                                    FROM access 
-                                    WHERE timestamp > 1""")
+    ips = select(cursor, """SELECT aid, mask 
+                            FROM access 
+                            WHERE timestamp > 1""")
 
     # initialize the geolocation info
     giop = GeoIP.open(ruta_geoip, GeoIP.GEOIP_CHARSET_UTF8)
