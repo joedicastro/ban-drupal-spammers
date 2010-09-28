@@ -29,7 +29,7 @@
 __author__ = "joe di castro - joe@joedicastro.com"
 __license__ = "GNU General Public License version 3"
 __date__ = "10/09/2010"
-__version__ = "0.11"
+__version__ = "0.12"
 
 try:
     import sys
@@ -180,9 +180,12 @@ class Logger():
         subject = '{0} - {1}'.format(subject, time.strftime('%A %x, %X'))
         msg = ("From: {0}{3}To: {0}{3}Subject: {1}{3}{2}".
                format(email, subject, self.__log, os.linesep))
-        server = smtplib.SMTP('localhost')
-        server.sendmail(email, email, msg)
-        server.quit()
+        try:
+            server = smtplib.SMTP('localhost')
+            server.sendmail(email, email, msg)
+            server.quit()
+        except socket.error:
+            print 'Mail server error!'
         return
 
     def write(self, append=False):

@@ -288,7 +288,7 @@ def main():
     log.time('End Time')
 
     # send the log by email
-    log.send('Remove IP Spammers')
+    log.send('Ban Drupal Spammers')
 
 if __name__ == "__main__":
     main()
