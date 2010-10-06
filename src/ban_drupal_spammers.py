@@ -31,7 +31,7 @@
 __author__ = "joe di castro - joe@joedicastro.com"
 __license__ = "GNU General Public License version 3"
 __date__ = "15/05/2010"
-__version__ = "0.3"
+__version__ = "0.4"
 
 try:
     import sys
@@ -40,7 +40,7 @@ try:
     import base64
     import collections
     import MySQLdb
-    import GeoIP
+    import pygeoip
     import logger
 except ImportError:
     # Checks the installation of the necessary python modules
@@ -165,7 +165,7 @@ def main():
     mysql_db = connect_db(host, user, password, database)
     cursor = mysql_db.cursor()
     dict_cursor = mysql_db.cursor(MySQLdb.cursors.DictCursor)
-    gip = GeoIP.open(geoip_path, GeoIP.GEOIP_CHARSET_UTF8)
+    gip = pygeoip.GeoIP(geoip_path)
 
     # optimize the database (instead a cron task in the server)
     all_tables = [tabl[0] for tabl in select(cursor, "SHOW TABLES")]

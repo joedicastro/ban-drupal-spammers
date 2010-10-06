@@ -33,12 +33,12 @@
 __author__ = "joe di castro - joe@joedicastro.com"
 __license__ = "GNU General Public License version 3"
 __date__ = "07/09/2010"
-__version__ = "0.22"
+__version__ = "0.3"
 
 try:
     import sys
     import os
-    import GeoIP
+    import pygeoip
     import base64
     import time
     from ftplib import FTP
@@ -158,12 +158,14 @@ def main():
     password = base64.b64decode('cGFzc3dvcmQ=')
     # the database name
     database = 'your_database_name'
+
     # the ftp user, secured in base64, for a minimum caution (default, 'user')
     ftp_user = base64.b64decode('dXNlcg==')
     # the ftp password (default in base64, 'ftp_password')
     ftp_pass = base64.b64decode('ZnRwX3Bhc3N3b3Jk')
     # the ftp directory
     ftp_dir = 'your/ftp/directory'
+
     # path to geoip data file
     ruta_geoip = '/your/path/to/file/GeoIP.dat'
     # path to store the ammap xml data file
@@ -182,8 +184,7 @@ def main():
                             WHERE timestamp > 1""")
 
     # initialize the geolocation info
-    giop = GeoIP.open(ruta_geoip, GeoIP.GEOIP_CHARSET_UTF8)
-
+    giop = pygeoip.GeoIP(ruta_geoip)
     # Get the geolocation info for ip
     # spammers = [(country, code, ip), ...]
     spammers = [(giop.country_name_by_addr(ip['mask']),
