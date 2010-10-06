@@ -33,7 +33,7 @@
 __author__ = "joe di castro - joe@joedicastro.com"
 __license__ = "GNU General Public License version 3"
 __date__ = "07/09/2010"
-__version__ = "0.3"
+__version__ = "0.31"
 
 try:
     import sys
@@ -159,6 +159,8 @@ def main():
     # the database name
     database = 'your_database_name'
 
+    # Set if upload the file to a ftp server
+    upload_to_ftp = False
     # the ftp user, secured in base64, for a minimum caution (default, 'user')
     ftp_user = base64.b64decode('dXNlcg==')
     # the ftp password (default in base64, 'ftp_password')
@@ -205,7 +207,8 @@ def main():
     ammap_file = os.path.join(ammap_file_path, 'ammap_data.xml')
     create_xml(spammers_by_country, ammap_file)
     # upload the ammap file to a ftp server
-    upload_ftp(host, ftp_user, ftp_pass, ftp_dir, ammap_file)
+    if upload_to_ftp:
+        upload_ftp(host, ftp_user, ftp_pass, ftp_dir, ammap_file)
 
 if __name__ == "__main__":
     main()

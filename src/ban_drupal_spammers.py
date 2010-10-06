@@ -31,7 +31,7 @@
 __author__ = "joe di castro - joe@joedicastro.com"
 __license__ = "GNU General Public License version 3"
 __date__ = "15/05/2010"
-__version__ = "0.4"
+__version__ = "0.5"
 
 try:
     import sys
@@ -141,6 +141,18 @@ def main():
     # path to geolocation data file GeoIP.dat
     geoip_path = '/your/path/to/file/GeoIP.dat'
 
+    # mail server, smtp protocol, to send the log ('localhost' by default)
+    smtp_server = 'localhost'
+    # sender's email address ('' by default)
+    from_addr = ''
+    # a list of receiver(s)' email addresses ([''] by default)
+    to_addrs = ['']
+    # smtp server user ('' by default)
+    smtp_user = ''
+    # smtp server password, with a minimum security measure, encoded by base64
+    # ('password' by default)
+    smtp_pass = base64.b64decode('cGFzc3dvcmQ=')
+
     # set the perfomace threshold (number of banned ips) for you site
     threshold = 2000
 
@@ -151,7 +163,7 @@ def main():
     # Initialize the log
     log = logger.Logger()
     # log the header
-    url = 'http://bitbucket.org/joedicastro/ban_drupal_spammers'
+    url = 'http://code.joedicastro.com/ban_drupal_spammers'
     connected = 'Connected to {0} in {1} as {2}'.format(database, host, user)
     log.header(url, connected)
 
@@ -288,7 +300,12 @@ def main():
     log.time('End Time')
 
     # send the log by email
-    log.send('Ban Drupal Spammers')
+    log.send('Ban Drupal Spammers', send_from=from_addr, dest_to=to_addrs,
+             mail_server=smtp_server, server_user=smtp_user,
+             server_pass=smtp_pass)
+
+    # write the log to a file
+    log.write(True)
 
 if __name__ == "__main__":
     main()

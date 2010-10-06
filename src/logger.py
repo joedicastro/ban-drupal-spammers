@@ -29,7 +29,7 @@
 __author__ = "joe di castro - joe@joedicastro.com"
 __license__ = "GNU General Public License version 3"
 __date__ = "10/09/2010"
-__version__ = "0.12"
+__version__ = "0.2"
 
 try:
     import sys
@@ -37,6 +37,11 @@ try:
     import time
     import smtplib
     import socket
+    from email import encoders
+    from email.mime.base import MIMEBase
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    from email.utils import COMMASPACE, formatdate
 except ImportError:
     # Checks the installation of the necessary python modules
     print((os.linesep * 2).join(["An error found importing one module:",
@@ -167,26 +172,67 @@ class Logger():
         """Get the log content."""
         return self.__log
 
-    def send(self, subject):
-        """Send a mail with the log to the user's local mailbox.
-
-        (str) subject - A string for the mail's subject.
-
-        Date and time info is added to the end of the subject
-
+    def send(self, subject, send_from='', dest_to='', mail_server='localhost',
+             server_user='', server_pass=''):
+        """Send a email with the log.
+        
+        Arguments:
+            (str) send_from -- a sender's email address (default '')
+            (str or list) dest_to -- a list of receivers' email addresses ('')
+            (str) subject -- the mail's subject
+            (str) mail_server -- the smtp server (default 'localhost')
+            (str) server_user -- the smtp server user (default '')
+            (str) server_pass --the smtp server password (default '')
+                
+        If 'send_from' or 'dest_to' are empty or None, then script user's 
+        mailbox is assumed instead. Useful for loggin scripts
+        
         """
-        # Set the local mail address for the script' user
-        email = '{0}@{1}'.format(os.getenv('LOGNAME'), socket.gethostname())
-        subject = '{0} - {1}'.format(subject, time.strftime('%A %x, %X'))
-        msg = ("From: {0}{3}To: {0}{3}Subject: {1}{3}{2}".
-               format(email, subject, self.__log, os.linesep))
+        local_email = '@'.join([os.getenv('LOGNAME'), socket.gethostname()])
+        if not send_from:
+            send_from = local_email
+        if not dest_to:
+            dest_to = [local_email]
+
+        dest_to_addrs = COMMASPACE.join(dest_to) # receivers mails
+        message = MIMEMultipart()
+        message['Subject'] = '{0} - {1}'.format(subject,
+                                                time.strftime('%A %x, %X'))
+        message['From'] = send_from
+        message['To'] = dest_to_addrs
+        message['Date'] = formatdate(localtime=True)
+        message.preamble = "You'll not see this in a MIME-aware mail reader.\n"
+        message.attach(MIMEText(self.__log))
+
+        # initialize the mail server
+        server = smtplib.SMTP()
+        # Connect to mail server
         try:
-            server = smtplib.SMTP('localhost')
-            server.sendmail(email, email, msg)
-            server.quit()
+            server.connect(mail_server)
+        except socket.gaierror:
+            self.list('mail error', 'Wrong server, are you sure is correct?')
         except socket.error:
-            print 'Mail server error!'
-        return
+            self.list('mail error', 'Server unavailable or connection refused')
+        # Login in mail server
+        if mail_server != 'localhost':
+            try:
+                server.login(server_user, server_pass)
+            except smtplib.SMTPAuthenticationError:
+                self.list('mail error', 'Authentication error')
+            except smtplib.SMTPException:
+                self.list('mail error', 'No suitable authentication method')
+        # Send mail
+        try:
+            server.sendmail(send_from, dest_to_addrs, message.as_string())
+        except smtplib.SMTPRecipientsRefused:
+            self.list('mail error', 'All recipients were refused.'
+                      'Nobody got the mail.')
+        except smtplib.SMTPSenderRefused:
+            self.list('mail error', 'The server didn’t accept the from_addr')
+        except smtplib.SMTPDataError:
+            self.list('mail error', 'An unexpected error code, Data refused')
+        # Disconnect from server
+        server.quit()
 
     def write(self, append=False):
         """Write the log to a file.
