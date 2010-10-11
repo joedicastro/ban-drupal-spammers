@@ -31,7 +31,7 @@
 __author__ = "joe di castro - joe@joedicastro.com"
 __license__ = "GNU General Public License version 3"
 __date__ = "15/05/2010"
-__version__ = "0.5"
+__version__ = "0.51"
 
 try:
     import sys
@@ -254,6 +254,8 @@ def main():
     # interface
     trigger = bool(len(access) > threshold) # perfomance threshold
 
+    del_ips, latest = [], 0  # ips to delete (if trigger) & latest ip's date
+
     if trigger:
         # Now we'll group the ips by date. Use the object collections.defauldict
         # to group the ips in a dictionary of lists (values) of ips by date
@@ -262,8 +264,6 @@ def main():
         ips_by_time = collections.defaultdict(list)
         for fa_ip in from_access:
             ips_by_time[from_access[fa_ip]].append(fa_ip)
-
-        del_ips, latest = [], 0    # ips to delete and date of the latest ip
 
         # We selected the oldest ips to have a number of them greater than or
         # equal to 30% of blocked by this script
@@ -300,8 +300,9 @@ def main():
     log.time('End Time')
 
     # send the log by email
-    log.send('Ban Drupal Spammers', send_from=from_addr, dest_to=to_addrs,
-             mail_server=smtp_server, server_user=smtp_user,
+    log.send('Ban Drupal Spammers. Ins: {0} Del: {1}'.
+             format(len(ins_ips), len(del_ips)), send_from=from_addr,
+             dest_to=to_addrs, mail_server=smtp_server, server_user=smtp_user,
              server_pass=smtp_pass)
 
     # write the log to a file
