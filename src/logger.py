@@ -29,7 +29,7 @@
 __author__ = "joe di castro - joe@joedicastro.com"
 __license__ = "GNU General Public License version 3"
 __date__ = "10/09/2010"
-__version__ = "0.2"
+__version__ = "0.21"
 
 try:
     import sys
@@ -37,8 +37,6 @@ try:
     import time
     import smtplib
     import socket
-    from email import encoders
-    from email.mime.base import MIMEBase
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
     from email.utils import COMMASPACE, formatdate
@@ -50,21 +48,21 @@ except ImportError:
 
 class Logger():
     """
-    
+
     Create a log object to log script messages.
-    
+
     These messages can be sended via email or writed in a log file
-    
+
     """
 
     def __init__(self):
         """Create the object Logger itself and set a pair of variables.
-        
+
         These variables are about the python file wich invokes this module:
-        
+
         __script_vers = The version of python file which invokes this module
         __script_name = The name of the python file which invokes this module
-        
+
         """
         from __main__ import __dict__ as __dict
         self.__log = ''
@@ -175,7 +173,7 @@ class Logger():
     def send(self, subject, send_from='', dest_to='', mail_server='localhost',
              server_user='', server_pass=''):
         """Send a email with the log.
-        
+
         Arguments:
             (str) send_from -- a sender's email address (default '')
             (str or list) dest_to -- a list of receivers' email addresses ('')
@@ -183,10 +181,10 @@ class Logger():
             (str) mail_server -- the smtp server (default 'localhost')
             (str) server_user -- the smtp server user (default '')
             (str) server_pass --the smtp server password (default '')
-                
-        If 'send_from' or 'dest_to' are empty or None, then script user's 
+
+        If 'send_from' or 'dest_to' are empty or None, then script user's
         mailbox is assumed instead. Useful for loggin scripts
-        
+
         """
         local_email = '@'.join([os.getenv('LOGNAME'), socket.gethostname()])
         if not send_from:

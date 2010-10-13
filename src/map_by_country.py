@@ -2,12 +2,12 @@
 # -*- coding: latin-1 -*-
 
 """
-    map_by_country.py: make a ammap data file for a chropleth map of spammers. 
+    map_by_country.py: make a ammap data file for a chropleth map of spammers.
 """
 
 #===============================================================================
 # This Script makes a ammap data file for create a chropleth map of spammers by
-# country. At the end, uploads the file to a ftp server directory. 
+# country. At the end, uploads the file to a ftp server directory.
 #
 # ammap, http://www.ammap.com/
 #
@@ -15,7 +15,7 @@
 
 #===============================================================================
 #    Copyright 2010 joe di castro <joe@joedicastro.com>
-#       
+#
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -33,7 +33,7 @@
 __author__ = "joe di castro - joe@joedicastro.com"
 __license__ = "GNU General Public License version 3"
 __date__ = "07/09/2010"
-__version__ = "0.31"
+__version__ = "0.32"
 
 try:
     import sys
@@ -45,7 +45,7 @@ try:
     from xml.dom.minidom import Document
     import MySQLdb
 except ImportError:
-    # Checks the installation of the necessary python modules 
+    # Checks the installation of the necessary python modules
     print((os.linesep * 2).join(["An error found importing one module:",
     str(sys.exc_info()[1]), "You need to install it", "Exit..."]))
     sys.exit(-2)
@@ -72,6 +72,7 @@ def create_xml(spam_by_country, xml_file):
     """Create the ammap xml file with the spam_by_country data."""
     with open(xml_file, 'w') as ammap:
         doc = Document()
+        os.environ['TZ'] = 'Europe/Madrid'
         fecha = time.strftime('%H:%M %d %B %Y')
         mapp = doc.createElement("map")
         mapp.setAttribute("map_file", "maps/world.swf")
@@ -181,8 +182,8 @@ def main():
     da_base = connect_db(host, user, password, database, 3306)
     cursor = da_base.cursor(MySQLdb.cursors.DictCursor)
     # get the data from db
-    ips = select(cursor, """SELECT aid, mask 
-                            FROM access 
+    ips = select(cursor, """SELECT aid, mask
+                            FROM access
                             WHERE timestamp > 1""")
 
     # initialize the geolocation info
@@ -193,7 +194,7 @@ def main():
                  giop.country_code_by_addr(ip['mask']), ip['mask']) for
                   ip in ips]
 
-    # Get the number of spammer by country in a dictionary 
+    # Get the number of spammer by country in a dictionary
     # spammers_by_country = {country:[number of spammers, country code], ...}
     spammers_by_country = {}
     for spam_ip in spammers:
