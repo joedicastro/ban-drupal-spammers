@@ -31,7 +31,7 @@
 __author__ = "joe di castro - joe@joedicastro.com"
 __license__ = "GNU General Public License version 3"
 __date__ = "15/05/2010"
-__version__ = "0.51"
+__version__ = "0.52"
 
 try:
     import sys
@@ -163,7 +163,7 @@ def main():
     # Initialize the log
     log = logger.Logger()
     # log the header
-    url = 'http://code.joedicastro.com/ban_drupal_spammers'
+    url = 'http://code.joedicastro.com/ban-drupal-spammers'
     connected = 'Connected to {0} in {1} as {2}'.format(database, host, user)
     log.header(url, connected)
 
