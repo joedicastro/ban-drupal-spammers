@@ -29,7 +29,7 @@
 __author__ = "joe di castro - joe@joedicastro.com"
 __license__ = "GNU General Public License version 3"
 __date__ = "10/09/2010"
-__version__ = "0.21"
+__version__ = "0.22"
 
 try:
     import sys
@@ -70,7 +70,7 @@ class Logger():
             self.__script_vers = __dict['__version__']
         else:
             self.__script_vers = 'Unknown'
-        self.__script_name = os.path.basename(__dict['__file__'].split('.')[0])
+        self.__script_name = os.path.basename(__dict['__file__']).split('.')[0]
 
     def __len__(self):
         return len(self.__log)
