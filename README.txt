@@ -209,9 +209,9 @@ An example of these emails sent is:
 
 
 
-De: yourlocaluser@localhost
-Para:  example@example.com
-Asunto: Ban Drupal Spammers. Ins: 5 Del: 0 - Tuesday 10/12/10, 05:10:01
+From:       yourlocaluser@localhost
+To:         example@example.com
+Subject:    Ban Drupal Spammers. Ins: 5 Del: 0 - Tuesday 10/12/10, 05:10:01
 
 
 SCRIPT =========================================================================
