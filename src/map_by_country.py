@@ -30,10 +30,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #===============================================================================
 
-__author__ = "joe di castro - joe@joedicastro.com"
+__author__ = "joe di castro <joe@joedicastro.com>"
 __license__ = "GNU General Public License version 3"
-__date__ = "07/09/2010"
-__version__ = "0.32"
+__date__ = "30/12/2010"
+__version__ = "0.4"
 
 try:
     import sys
@@ -133,15 +133,17 @@ def create_xml(spam_by_country, xml_file):
 
         ammap.write(doc.toprettyxml(indent="   ", encoding="UTF-8"))
 
-def upload_ftp(host, ftp_user, ftp_pass, ftp_dir, to_upload):
+def upload_ftp(host, ftp_user, ftp_pass, ftp_dir, to_upload, port=21):
     """Upload by FTP a file to a host."""
     with open(to_upload, 'r') as file_2_upload:
-        ftp = FTP(host, ftp_user, ftp_pass)
+        ftp = FTP()
+        ftp.connect(host, port)
+        ftp.login(ftp_user, ftp_pass)
         ftp.cwd(ftp_dir)
         ftp.storbinary('STOR {0}'.format(os.path.basename(to_upload)),
-                        file_2_upload)
+                       file_2_upload)
         ftp.quit()
-    return
+
 
 def main():
     """The main section"""
