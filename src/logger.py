@@ -28,8 +28,8 @@
 
 __author__ = "joe di castro - joe@joedicastro.com"
 __license__ = "GNU General Public License version 3"
-__date__ = "19/10/2010"
-__version__ = "0.23"
+__date__ = "19/10/2011"
+__version__ = "0.24"
 
 try:
     import sys
@@ -37,6 +37,8 @@ try:
     import time
     import smtplib
     import socket
+    import getpass
+    from email.mime.base import MIMEBase
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
     from email.utils import COMMASPACE, formatdate
@@ -186,7 +188,7 @@ class Logger():
         mailbox is assumed instead. Useful for loggin scripts
 
         """
-        local_email = '@'.join([os.getlogin(), socket.gethostname()])
+        local_email = '@'.join([getpass.getuser(), socket.gethostname()])
         if not send_from:
             send_from = local_email
         if not dest_to:
