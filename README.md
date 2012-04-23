@@ -118,12 +118,12 @@ To do so would use cron on Linux to establish a regular schedule of the script.
 All you have to do in the script is to define the parameters needed to run it.
 The parameters refer to:
 
-    * The database in which tables are our Drupal installation
-    * The path where is located the necessary file GeoIP.dat
-    * Values in order to use an external SMTP server (optional) to send mails
-      with the resume
-    * The parameter that defines the maximum number of IPs to block
-      (stored in table).
+* The database in which tables are our Drupal installation
+* The path where is located the necessary file GeoIP.dat
+* Values in order to use an external SMTP server (optional) to send mails
+  with the resume
+* The parameter that defines the maximum number of IPs to block
+  (stored in table).
 
 The parameters to change are clearly identified within the script, enclosed
 between
