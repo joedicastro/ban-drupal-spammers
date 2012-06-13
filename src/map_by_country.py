@@ -5,15 +5,15 @@
     map_by_country.py: make a ammap data file for a chropleth map of spammers.
 """
 
-#===============================================================================
+#==============================================================================
 # This Script makes a ammap data file for create a chropleth map of spammers by
 # country. At the end, uploads the file to a ftp server directory.
 #
 # ammap, http://www.ammap.com/
 #
-#===============================================================================
+#==============================================================================
 
-#===============================================================================
+#==============================================================================
 #    Copyright 2010 joe di castro <joe@joedicastro.com>
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -28,7 +28,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#===============================================================================
+#==============================================================================
 
 __author__ = "joe di castro <joe@joedicastro.com>"
 __license__ = "GNU General Public License version 3"
@@ -50,6 +50,7 @@ except ImportError:
     str(sys.exc_info()[1]), "You need to install it", "Exit..."]))
     sys.exit(-2)
 
+
 def connect_db(host, user, pass_, db, port=3306):
     """Connect to MySQL database."""
     try:
@@ -59,14 +60,16 @@ def connect_db(host, user, pass_, db, port=3306):
         # to CLIENT_MULTI_STATEMENTS
     except MySQLdb.OperationalError:
         print("Database connection fails, check that you gave the right "
-              "credentials to access the database{0}Exit...".format(os.linesep))
+              "credentials to access the database{0}Exit.".format(os.linesep))
         sys.exit(-2)
     return data_base
+
 
 def select(curs, sql):
     """Runs a SQL SELECT query and returns a tuple as output."""
     curs.execute(sql)
     return curs.fetchall()
+
 
 def create_xml(spam_by_country, xml_file):
     """Create the ammap xml file with the spam_by_country data."""
@@ -133,6 +136,7 @@ def create_xml(spam_by_country, xml_file):
 
         ammap.write(doc.toprettyxml(indent="   ", encoding="UTF-8"))
 
+
 def upload_ftp(host, ftp_user, ftp_pass, ftp_dir, to_upload, port=21):
     """Upload by FTP a file to a host."""
     with open(to_upload, 'r') as file_2_upload:
@@ -148,16 +152,16 @@ def upload_ftp(host, ftp_user, ftp_pass, ftp_dir, to_upload, port=21):
 def main():
     """The main section"""
 
-#===============================================================================
+#==============================================================================
 # SCRIPT PARAMETERS
-#===============================================================================
+#==============================================================================
 
     # the database host (localhost by default)
     host = 'localhost'
-    # the database user (root by default) 
+    # the database user (root by default)
     user = 'root'
-    # the database password with a minimum security step (by default, 'password'
-    # in a base64 codec) 
+    # the database password with a minimum security step (by default,
+    # 'password' in a base64 codec)
     password = base64.b64decode('cGFzc3dvcmQ=')
     # the database name
     database = 'your_database_name'
@@ -176,9 +180,9 @@ def main():
     # path to store the ammap xml data file
     ammap_file_path = '/your/path/to/store/the/xml/data/file'
 
-#===============================================================================
+#==============================================================================
 # END PARAMETERS
-#===============================================================================
+#==============================================================================
 
     # connect to database and create the cursor
     da_base = connect_db(host, user, password, database, 3306)

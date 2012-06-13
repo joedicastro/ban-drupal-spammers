@@ -5,12 +5,12 @@
     ban drupal spammers.py: ban spammers in Drupal with Mollom's aid
 """
 
-#===============================================================================
+#==============================================================================
 # This Script uses the Mollom reports in Drupal for ban spammers' ips and
 # reduce the bandwith usage in the website.
-#===============================================================================
+#==============================================================================
 
-#===============================================================================
+#==============================================================================
 #    Copyright 2010 joe di castro <joe@joedicastro.com>
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#===============================================================================
+#==============================================================================
 
 __author__ = "joe di castro - joe@joedicastro.com"
 __license__ = "GNU General Public License version 3"
@@ -48,6 +48,7 @@ except ImportError:
     str(sys.exc_info()[1]), "You need to install it", "Exit..."]))
     sys.exit(-2)
 
+
 def connect_db(host, user, pass_, db, port=3306):
     """Connect to MySQL database."""
     try:
@@ -57,14 +58,16 @@ def connect_db(host, user, pass_, db, port=3306):
         # to CLIENT_MULTI_STATEMENTS
     except MySQLdb.OperationalError:
         print("Database connection fails, check that you gave the right "
-              "credentials to access the database{0}Exit...".format(os.linesep))
+              "credentials to access the database{0}Exit.".format(os.linesep))
         sys.exit(-2)
     return data_base
+
 
 def select(curs, sql):
     """Runs a SQL SELECT query and returns a tuple as output."""
     curs.execute(sql)
     return curs.fetchall()
+
 
 def alter_table(curs, db_table):
     """Create the aux field in the table if no exists, else do nothing."""
@@ -79,6 +82,7 @@ def alter_table(curs, db_table):
         print ("Can't create the aux field, seems this exists previously.")
         # This output is not reported in the log, it will be repetitive.
 
+
 def ins_qstr(q_mask, q_timestamp):
     """Create a SQL INSERT query string for the given ip."""
     iqstr = """
@@ -88,6 +92,7 @@ def ins_qstr(q_mask, q_timestamp):
             """.format(q_mask, q_timestamp, os.linesep)
     return iqstr
 
+
 def del_qstr(q_timestamp):
     """Create a DELETE query string for the given timestamp."""
     dqstr = """
@@ -95,6 +100,7 @@ def del_qstr(q_timestamp):
             WHERE timestamp='{0}';{1}
             """.format(q_timestamp, os.linesep)
     return dqstr
+
 
 def ip_and_country(l_ips, geo):
     """Create the log lines about the ips and their countries."""
@@ -107,6 +113,7 @@ def ip_and_country(l_ips, geo):
         output = os.linesep.join([total, '', ips])
     return output
 
+
 def renew_geoip(gip_path):
     """Check if the geoip data file is too old."""
     out_str = ''
@@ -114,7 +121,7 @@ def renew_geoip(gip_path):
                 "GeoLiteCountry/GeoIP.dat.gz")
     web_url = "http://www.maxmind.com/app/geolitecountry"
     geoip_file_date = os.path.getmtime(gip_path)
-    if (time.time() - geoip_file_date) > 2592000: # 2592000s = 30 days
+    if (time.time() - geoip_file_date) > 2592000:  # 2592000s = 30 days
         out_str += ("Your GeoIP data file* is older than 30 days!{0}{0}"
                     "You can look for a new version in:{0}{1}{0}or{0}{2}{0}{0}"
                     "  *{3}".format(os.linesep, gz_file, web_url, gip_path))
@@ -124,9 +131,9 @@ def renew_geoip(gip_path):
 def main():
     """main section"""
 
-#===============================================================================
+#==============================================================================
 # SCRIPT PARAMATERS
-#===============================================================================
+#==============================================================================
 
     # database host, name or ip ('localhost' by default)
     host = 'localhost'
@@ -156,9 +163,9 @@ def main():
     # set the perfomace threshold (number of banned ips) for you site
     threshold = 2000
 
-#===============================================================================
+#==============================================================================
 # END PARAMETERS
-#===============================================================================
+#==============================================================================
 
     # Initialize the log
     log = logger.Logger()
@@ -205,7 +212,6 @@ def main():
         if int(a_row['timestamp']):
             from_access[a_row['mask']] = a_row['timestamp']
 
-
     # Here we select the ips that Mollom reported, if there are multiple
     # occurrences of the same ip, we always choose the most recent
     # from_mollom = {'ip':timestamp, ...}
@@ -223,15 +229,15 @@ def main():
     # already banned, because of how the Drupal's event log works. The optional
     # core module "Database logging" (which must be enabled to run his script)
     # is deleting records by the tail (into the 'watchdog' table) on each cron
-    # run, according to a maximum limit set in the admin menu. This limit may be
-    # 100, 1000, 10000, 100000, 1000000 records, as determined in the "Loggin
-    # and alerts -> Database logging" menu. Then depending on the record limit
-    # set in the 'watchdog' table, the frequency with which you run the cron job
-    # and how often you run this script, it's  very likely that in the previous
-    # query we have returned a number of ips that have not yet eliminated from
-    # the log ('watchdog'), but we have already added to the table of bannedd
-    # ips ('access'). This will avoid duplicate ips on table 'access'
-    # ins_ips = ['ip0', 'ip1', ...]
+    # run, according to a maximum limit set in the admin menu. This limit may
+    # be 100, 1000, 10000, 100000, 1000000 records, as determined in the
+    # "Loggin and alerts -> Database logging" menu. Then depending on the
+    # record limit set in the 'watchdog' table, the frequency with which you
+    # run the cron job and how often you run this script, it's  very likely
+    # that in the previous query we have returned a number of ips that have not
+    # yet eliminated from the log ('watchdog'), but we have already added to
+    # the table of bannedd ips ('access'). This will avoid duplicate ips on
+    # table 'access' ins_ips = ['ip0', 'ip1', ...]
     ins_ips = [f_ip for f_ip in from_mollom.keys() if f_ip not in from_access]
     query_str = ''.join(ins_qstr(i_ip, from_mollom[i_ip]) for i_ip in ins_ips)
 
@@ -252,14 +258,14 @@ def main():
     # delete will be at least the 30% of "from_access". Just delete records
     # inserted through this script, never the inserted via Drupal admin
     # interface
-    trigger = bool(len(access) > threshold) # perfomance threshold
+    trigger = bool(len(access) > threshold)  # perfomance threshold
 
     del_ips, latest = [], 0  # ips to delete (if trigger) & latest ip's date
 
     if trigger:
-        # Now we'll group the ips by date. Use the object collections.defauldict
-        # to group the ips in a dictionary of lists (values) of ips by date
-        # (keys)
+        # Now we'll group the ips by date. Use the object
+        # collections.defauldict to group the ips in a dictionary of lists
+        # (values) of ips by date (keys)
         # ips_by_time = {timestamp:['ip0', ..], ...}
         ips_by_time = collections.defaultdict(list)
         for fa_ip in from_access:
@@ -269,7 +275,7 @@ def main():
         # equal to 30% of blocked by this script
         for ips_date in sorted(ips_by_time.keys()):
             if len(del_ips) < ((len(from_access) * 30) / 100):
-                query_str += del_qstr(ips_date) # delete by date, less queries
+                query_str += del_qstr(ips_date)  # delete by date, less queries
                 for d_ip in ips_by_time[ips_date]:
                     del_ips.append(d_ip)
                     banned_ips -= 1
@@ -310,4 +316,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
