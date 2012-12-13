@@ -193,7 +193,7 @@ An example of these emails sent is:
 
     SCRIPT =========================================================================
     ban_drupal_spammers (ver. 0.51)
-    http://code.joedicastro.com/ban_drupal_spammers
+    http://joedicastro.com
 
     Connected to your_database in localhost as your_database_user
     ================================================================================

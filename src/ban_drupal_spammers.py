@@ -170,7 +170,7 @@ def main():
     # Initialize the log
     log = logger.Logger()
     # log the header
-    url = 'http://code.joedicastro.com/ban-drupal-spammers'
+    url = 'http://joedicastro.com'
     connected = 'Connected to {0} in {1} as {2}'.format(database, host, user)
     log.header(url, connected)
 
