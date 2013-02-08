@@ -5,11 +5,11 @@
     logger.py: Create a log object to log script messages in a elegant way
 """
 
-#===============================================================================
+#==============================================================================
 # This module create a log object to log script messages in a elegant way
-#===============================================================================
+#==============================================================================
 
-#===============================================================================
+#==============================================================================
 #    Copyright 2010 joe di castro <joe@joedicastro.com>
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#===============================================================================
+#==============================================================================
 
 __author__ = "joe di castro - joe@joedicastro.com"
 __license__ = "GNU General Public License version 3"
@@ -38,15 +38,15 @@ try:
     import smtplib
     import socket
     import getpass
-    from email.mime.base import MIMEBase
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
     from email.utils import COMMASPACE, formatdate
 except ImportError:
     # Checks the installation of the necessary python modules
     print((os.linesep * 2).join(["An error found importing one module:",
-    str(sys.exc_info()[1]), "You need to install it", "Exit..."]))
+          str(sys.exc_info()[1]), "You need to install it", "Exit..."]))
     sys.exit(-2)
+
 
 class Logger():
     """
@@ -87,8 +87,8 @@ class Logger():
         make the looks of self.block() and self.list()
 
         """
-        ending = {'=':'', '_':os.linesep}[decor]
-        end = {'=': '=' * 80, '_':''}[decor]
+        ending = {'=': '', '_': os.linesep}[decor]
+        end = {'=': '=' * 80, '_': ''}[decor]
         begin = ' '.join([tit.upper(), (80 - (len(tit) + 1)) * decor]) + ending
         cont = [cont] if isinstance(cont, str) else cont
         sep = os.linesep
@@ -153,7 +153,7 @@ class Logger():
         """A self.block() formated header for the log info.
 
         (str) url -- The url of the script
-        (str) msg -- Message to show into the header. To Provide any useful info
+        (str) msg -- Message to show into the header to Provide any useful info
 
         It looks like this:
 
@@ -165,7 +165,8 @@ class Logger():
         ========================================================
 
         """
-        script = '{0} (ver. {1})'.format(self.__script_name, self.__script_vers)
+        script = '{0} (ver. {1})'.format(self.__script_name,
+                                         self.__script_vers)
         self.block('Script', [script, url, '', msg])
 
     def get(self):
@@ -194,7 +195,7 @@ class Logger():
         if not dest_to:
             dest_to = [local_email]
 
-        dest_to_addrs = COMMASPACE.join(dest_to) # receivers mails
+        dest_to_addrs = COMMASPACE.join(dest_to)  # receivers mails
         message = MIMEMultipart()
         message['Subject'] = '{0} - {1}'.format(subject,
                                                 time.strftime('%A %x, %X'))
@@ -249,6 +250,7 @@ class Logger():
         mode = 'ab' if append else 'wb'
         with open('{0}.log'.format(self.__script_name), mode) as log_file:
             log_file.write(self.__log)
+
 
 def main():
     """Main section"""

@@ -45,7 +45,7 @@ try:
 except ImportError:
     # Checks the installation of the necessary python modules
     print((os.linesep * 2).join(["An error found importing one module:",
-    str(sys.exc_info()[1]), "You need to install it", "Exit..."]))
+          str(sys.exc_info()[1]), "You need to install it", "Exit..."]))
     sys.exit(-2)
 
 
@@ -108,7 +108,7 @@ def ip_and_country(l_ips, geo):
     if l_ips:
         total = "{0} IPs".format(len(l_ips))
         ips_and_countries = [(geo.country_name_by_addr(l), l) for l in l_ips]
-        ips = os.linesep.join(['{0:16} {1}'.format(i[1], i[0]) for  i in
+        ips = os.linesep.join(['{0:16} {1}'.format(i[1], i[0]) for i in
                                sorted(ips_and_countries)])
         output = os.linesep.join([total, '', ips])
     return output
@@ -118,7 +118,7 @@ def renew_geoip(gip_path):
     """Check if the geoip data file is too old."""
     out_str = ''
     gz_file = ("http://geolite.maxmind.com/download/geoip/database/"
-                "GeoLiteCountry/GeoIP.dat.gz")
+               "GeoLiteCountry/GeoIP.dat.gz")
     web_url = "http://www.maxmind.com/app/geolitecountry"
     geoip_file_date = os.path.getmtime(gip_path)
     if (time.time() - geoip_file_date) > 2592000:  # 2592000s = 30 days

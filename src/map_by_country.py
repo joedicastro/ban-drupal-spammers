@@ -47,7 +47,7 @@ try:
 except ImportError:
     # Checks the installation of the necessary python modules
     print((os.linesep * 2).join(["An error found importing one module:",
-    str(sys.exc_info()[1]), "You need to install it", "Exit..."]))
+          str(sys.exc_info()[1]), "You need to install it", "Exit..."]))
     sys.exit(-2)
 
 
@@ -198,7 +198,7 @@ def main():
     # spammers = [(country, code, ip), ...]
     spammers = [(giop.country_name_by_addr(ip['mask']),
                  giop.country_code_by_addr(ip['mask']), ip['mask']) for
-                  ip in ips]
+                ip in ips]
 
     # Get the number of spammer by country in a dictionary
     # spammers_by_country = {country:[number of spammers, country code], ...}
