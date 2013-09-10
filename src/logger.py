@@ -254,7 +254,7 @@ class Logger():
 
 def main():
     """Main section"""
-    url = 'http://bitbucket.org/joedicastro'
+    url = 'http://github.com/joedicastro'
     head = 'This is a test of class Logger'
 
     log = Logger()

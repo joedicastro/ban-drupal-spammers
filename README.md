@@ -166,12 +166,7 @@ origin of the attack.
 
 ## REPOSITORY
 
-The code is hosted in a Mercurial (hg) repository at BitBucket, use this to get
-a clone:
-
-    hg clone http://bitbucket.org/joedicastro/ban-drupal-spammers
-
-Also is hosted in a Git repository at GitHub, use this to get a clone:
+The code is hosted in a Git repository at GitHub, use this to get a clone:
 
     git clone git://github.com/joedicastro/ban-drupal-spammers.git
 
@@ -227,13 +222,13 @@ An example of these emails sent is:
 ## CONTRIBUTION
 
 Contributions and Feedback are most welcome.
-To contribute to the improvement and development of this scripts, you can send 
+To contribute to the improvement and development of this scripts, you can send
 suggestions or bugs via the issues.
 
 
 ## LICENSE
 
-The script is distributed under the terms of the 
+The script is distributed under the terms of the
 [GPLv3 license](http://www.gnu.org/licenses/gpl.html)
 
 ##### Apologies for any misspelling or syntax error, English isn't my mother tongue.

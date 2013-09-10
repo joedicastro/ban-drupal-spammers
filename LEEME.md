@@ -159,21 +159,16 @@ No es necesario hacer nada con estos ficheros, únicamente han de estar presente
 ### map_by_country.py & ammap_data.xml
 
 Estos archivos están presentes únicamente para mostrar el modo de generar el
-mapa de amMap que se incluye en este 
-[articulo](http://joedicastro.com/combatir_el_spam_en_drupal). Es un mapa de 
-coropletas que  enumera la cantidad de ataques spam que recibe esa pagina por 
+mapa de amMap que se incluye en este
+[articulo](http://joedicastro.com/combatir_el_spam_en_drupal). Es un mapa de
+coropletas que  enumera la cantidad de ataques spam que recibe esa pagina por
 país de origen del ataque.
 
 
 
 ## REPOSITORIO
 
-El código está alojado en un repositorio de Mercurial (hg) en BitBucket, así que
- puedes clonarlo directamente así:
-
-    hg clone http://bitbucket.org/joedicastro/ban-drupal-spammers
-
-También está alojado en un repositorio Git en GitHub, emplea este comando para
+El código está alojado en un repositorio Git en GitHub, emplea este comando para
 poder clonarlo:
 
     git clone git://github.com/joedicastro/ban-drupal-spammers.git
@@ -233,7 +228,7 @@ Un ejemplo de estos correos enviados es el siguiente:
 
 ## CONTRIBUCIONES
 
-Las contribuciones y las ideas son bienvenidas. Para contribuir a la mejora y 
+Las contribuciones y las ideas son bienvenidas. Para contribuir a la mejora y
 evolución de este script, puedes enviar sugerencias o errores a través de el
 sistema de issues.
 
